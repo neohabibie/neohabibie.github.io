@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Budget Planner Dashboard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -48,6 +48,15 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
+        }
+
+        /* Disable user text selection for app-like behavior */
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            touch-action: manipulation;
         }
     </style>
 </head>
@@ -131,14 +140,14 @@
                     <input type="hidden" id="editTxId">
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
+                        <div class="w-full">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal</label>
-                            <input type="date" id="inputDate" required class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <input type="date" id="inputDate" required class="w-full box-border text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         </div>
 
-                        <div>
+                        <div class="w-full">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori</label>
-                            <select id="inputCategory" onchange="autoSelectType()" required class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <select id="inputCategory" onchange="autoSelectType()" required class="w-full box-border text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                                 <option value="" disabled selected>-- Pilih Kategori --</option>
                             </select>
                         </div>
@@ -146,28 +155,28 @@
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Keterangan / Item</label>
-                        <input type="text" id="inputDesc" placeholder="Contoh: Gaji Bulanan, Belanja Dapur, Token Listrik" required class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <input type="text" id="inputDesc" placeholder="Contoh: Gaji Bulanan, Belanja Dapur, Token Listrik" required class="w-full box-border text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Transaksi (Otomatis)</label>
-                        <input type="text" id="inputType" readonly placeholder="Terisi otomatis berdasarkan kategori" class="w-full text-xs px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 font-semibold cursor-not-allowed">
+                        <input type="text" id="inputType" readonly placeholder="Terisi otomatis berdasarkan kategori" class="w-full box-border text-xs px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 font-semibold cursor-not-allowed">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
+                        <div class="w-full">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Anggaran (Rp)</label>
-                            <input type="number" id="inputBudget" min="0" placeholder="0" required class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <input type="number" id="inputBudget" min="0" placeholder="0" required class="w-full box-border text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         </div>
-                        <div>
+                        <div class="w-full">
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Realisasi (Rp)</label>
-                            <input type="number" id="inputActual" min="0" placeholder="0" required class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <input type="number" id="inputActual" min="0" placeholder="0" required class="w-full box-border text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan (Opsional)</label>
-                        <input type="text" id="inputNotes" placeholder="Catatan tambahan..." class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <input type="text" id="inputNotes" placeholder="Catatan tambahan..." class="w-full box-border text-xs px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                     </div>
 
                     <!-- Modal Actions -->
@@ -427,11 +436,59 @@
 
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => {
+            initDisableProtection();
             populateCategoryDropdown();
             loadState();
             initCharts();
             updateAppView();
         });
+
+        // --- DISABLE RIGHT CLICK & DISABLE ZOOM PROTECTION ---
+        function initDisableProtection() {
+            // 1. Disable Right Click Context Menu
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+
+            // 2. Disable Ctrl/Cmd + Mouse Wheel Zoom
+            document.addEventListener('wheel', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // 3. Disable Keyboard Zoom Shortcuts (Ctrl/Cmd + '+', '-', '0', etc.)
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && (
+                    e.key === '+' || 
+                    e.key === '-' || 
+                    e.key === '=' || 
+                    e.key === '0' || 
+                    e.keyCode === 187 || 
+                    e.keyCode === 189 || 
+                    e.keyCode === 107 || 
+                    e.keyCode === 109
+                )) {
+                    e.preventDefault();
+                }
+            });
+
+            // 4. Disable Touch Pinch-Zoom on Mobile Devices
+            document.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', (e) => {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    e.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+        }
 
         // --- LOCAL STORAGE & DATA MANAGEMENT ---
         function loadState() {
